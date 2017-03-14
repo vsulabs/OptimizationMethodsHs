@@ -4,13 +4,11 @@ module Lib
     ( someFunc
     ) where
 
-data Pair = Pair Double Double
-
-findNext :: Double -> (Double -> Double) -> Double -> Double -> Pair
+findNext :: Double -> (Double -> Double) -> Double -> Double -> (Double, Double)
 findNext d f a b 
-        | f1 <  f2 = Pair a u2
-        | f1 >  f2 = Pair u1 b
-        | f1 == f2 = Pair u1 u2
+        | f1 <  f2 = (a,  u2)
+        | f1 >  f2 = (u1, b)
+        | f1 == f2 = (u1, u2)
         where 
            u1 = (a + b - d) / 2
            u2 = (a + b + d) / 2
@@ -22,7 +20,7 @@ binSearch d f a b
         | b - a < eps  = (a + b) / 2
         | otherwise    = binSearch d f a1 b1
         where 
-          Pair a1 b1 = findNext d f a b
+          (a1, b1) = findNext d f a b
           eps = 0.001
 
 f :: Double -> Double
