@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiWayIf #-}
 
-module Lib
+module Task1
     ( bisectMin
     ) where
 
