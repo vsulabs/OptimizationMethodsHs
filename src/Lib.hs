@@ -4,7 +4,7 @@ module Lib
     ( someFunc
     ) where
 
-findNext :: Double -> (Double -> Double) -> Double -> Double -> (Double, Double)
+findNext :: (Fractional a, Ord b) => a -> (a -> b) -> a -> a -> (a, a)
 findNext d f a b 
         | f1 <  f2 = (a,  u2)
         | f1 >  f2 = (u1, b)
@@ -15,7 +15,7 @@ findNext d f a b
            f1 = f u1
            f2 = f u2
 
-binSearch :: Double -> (Double -> Double) -> Double -> Double -> Double
+binSearch :: (Fractional a, Ord a, Ord b) => a -> (a -> b) -> a -> a -> a
 binSearch d f a b
         | b - a < eps  = (a + b) / 2
         | otherwise    = binSearch d f a1 b1
@@ -25,8 +25,8 @@ binSearch d f a b
 
 f :: Double -> Double
 f x = (x-2)*(x-4)
-
+          
 someFunc :: IO ()
-
 someFunc = putStrLn(show(bs f (-5.0) 5.0))
-  where bs = binSearch 0.000001
+  where 
+    bs = binSearch 0.000001
