@@ -6,12 +6,15 @@ module Task3
 
 type Triples a = (a, a, a)
 
+eps :: Fractional a => a
+eps = 1e-2
+
 getNextHelp f0 p@(f1, f2, f3) extra t1 t2
         | f0 < f2 = t1
         | f0 > f2 = t2
         | otherwise = extra p t1 t2
 
-calcMin :: (Floating a) => (a -> a) -> Triples a -> a
+calcMin :: (Fractional a) => (a -> a) -> Triples a -> a
 calcMin f (u1, u2, u3) = u2 + num / denum
         where
           num = a * a * d1 - b * b * d2
@@ -21,9 +24,9 @@ calcMin f (u1, u2, u3) = u2 + num / denum
           d1 = f(u1) - f(u2)
           d2 = f(u3) - f(u2)
 
-getMiddle :: (Floating a, Ord a) => (a -> a) -> a -> Triples a -> a
+getMiddle :: (Fractional a, Ord a) => (a -> a) -> a -> Triples a -> a
 getMiddle f d p@(u1, u2, u3)
-          | d < 1e-2          = u2
+          | d < eps           = u2
           | f(u2 - d) < f(u2) = u2 - d
           | f(u2 + d) < f(u2) = u2 + d
           | otherwise         = getMiddle f d2 p
@@ -33,7 +36,7 @@ getMiddle f d p@(u1, u2, u3)
 tupleMap :: (a -> b) -> Triples a -> Triples b
 tupleMap f (a, b, c) = (f a, f b, f c)
 
--- getNext :: (Floating a, Ord a) => (a -> a) -> Triples a -> Triples a
+-- getNext :: (Fractional a, Ord a) => (a -> a) -> Triples a -> Triples a
 getNext f p@(u1, u2, u3)
         | d < u2    = help extra1 (u1, d, u2) (d,  u2, u3)
         | d > u2    = help extra2 (u2, d, u3) (u1, u2, d)
@@ -49,16 +52,16 @@ getNext f p@(u1, u2, u3)
           extra2 = \(f1, f2, f3) t1 t2 -> if | f3 > f2 -> t1 
                                              | f1 > f2 -> t2
 
-floatEq :: (Floating a, Ord a) => a -> a -> a -> Bool
+floatEq :: (Fractional a, Ord a) => a -> a -> a -> Bool
 floatEq eps a b = t < eps
             where
               t = abs $ a - b
 
-parabolicMethod :: (Floating a, Ord a) => (a -> a) -> Triples a -> a
+parabolicMethod :: (Fractional a, Ord a) => (a -> a) -> Triples a -> a
 parabolicMethod f (u1, u2, u3) = 
                       if isFinish
                       then u1
                       else parabolicMethod f $ getNext f (u1, u2, u3)
                     where
                       isFinish = eq u1 u2 && eq u2 u3
-                      eq = floatEq 1e-2
+                      eq = floatEq eps
