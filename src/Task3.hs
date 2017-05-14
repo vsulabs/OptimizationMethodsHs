@@ -1,7 +1,9 @@
 {-# LANGUAGE MultiWayIf #-}
 
 module Task3
-    ( parabolicMethod
+    ( parabolicMethod,
+      getMiddle,
+      parabolaMin
     ) where
 
 type Triples a = (a, a, a)
@@ -9,13 +11,15 @@ type Triples a = (a, a, a)
 eps :: Fractional a => a
 eps = 1e-2
 
-getNextHelp f0 p@(f1, f2, f3) extra t1 t2
+getNextHelp f0 p@(f1, f2, f3) (a, b) (c, d) t1 t2
         | f0 < f2 = t1
         | f0 > f2 = t2
-        | otherwise = extra p t1 t2
+        | a  < b  = t1
+        | c  < d  = t2
+        | otherwise = p
 
-calcMin :: (Fractional a) => (a -> a) -> Triples a -> a
-calcMin f (u1, u2, u3) = u2 + num / denum
+parabolaMin :: (Fractional a) => (a -> a) -> Triples a -> a
+parabolaMin f (u1, u2, u3) = u2 + num / denum
         where
           num = a * a * d1 - b * b * d2
           denum = 2 * (a * d1 + b * d2)
@@ -36,21 +40,18 @@ getMiddle f d p@(u1, u2, u3)
 tupleMap :: (a -> b) -> Triples a -> Triples b
 tupleMap f (a, b, c) = (f a, f b, f c)
 
--- getNext :: (Fractional a, Ord a) => (a -> a) -> Triples a -> Triples a
+getNext :: (Fractional a, Ord a) => (a -> a) -> Triples a -> Triples a
 getNext f p@(u1, u2, u3)
-        | d < u2    = help extra1 (u1, d, u2) (d,  u2, u3)
-        | d > u2    = help extra2 (u2, d, u3) (u1, u2, d)
+        | d < u2    = help (f2, f1) (f3, f2) (u1, d, u2) (d,  u2, u3)
+        | d > u2    = help (f2, f3) (f2, f1) (u2, d, u3) (u1, u2, d)
         | u2 == u2' = (u2, u2, u2)
         | otherwise = (u1, u2', u3)
         where
-          d = calcMin f p
+          d = parabolaMin f p
           u2' = getMiddle f delta p
           delta = (u2 - u1) / 2
           help = getNextHelp (f d) $ tupleMap f p
-          extra1 = \(f1, f2, f3) t1 t2 -> if | f1 > f2 -> t1
-                                             | f2 > f3 -> t2
-          extra2 = \(f1, f2, f3) t1 t2 -> if | f3 > f2 -> t1 
-                                             | f1 > f2 -> t2
+          (f1, f2, f3) = tupleMap f p
 
 floatEq :: (Fractional a, Ord a) => a -> a -> a -> Bool
 floatEq eps a b = t < eps
